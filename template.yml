@@ -13,6 +13,12 @@ Transform:
   - AWS::Serverless-2016-10-31
 
 Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'content-type'"
+      AllowOrigin: "'*'"
+      AllowCredentials: false
   Function:
     Layers:
       - !Ref RuntimeDependenciesLayer
@@ -20,7 +26,7 @@ Globals:
       Variables:
         CALCULATIONS_TABLE: !Ref CalculationsTable
         CALCULATION_QUEUE: !Ref CalculationQueue
-    Runtime: nodejs12.x
+    Runtime: nodejs16.x
     MemorySize: 128
     Timeout: 100
 
