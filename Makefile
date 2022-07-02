@@ -1,5 +1,5 @@
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
-.PHONY: build-getAllItemsFunction build-getByIdFunction build-putItemFunction build-healthCheckFunction
+.PHONY: build-getAllItemsFunction build-getByIdFunction build-putItemFunction build-healthCheckFunction build-calculateSavingsFunction
 
 build-getAllItemsFunction:
 	$(MAKE) HANDLER=src/handlers/get-all-items.ts build-lambda-common
@@ -11,6 +11,8 @@ build-writeItemFunction:
 	$(MAKE) HANDLER=src/handlers/write-item.ts build-lambda-common
 build-healthCheckFunction:
 	$(MAKE) HANDLER=src/handlers/health-check.ts build-lambda-common
+build-calculateSavingsFunction:
+	$(MAKE) HANDLER=src/handlers/calculate-savings.ts build-lambda-common
 
 build-lambda-common:
 	npm install

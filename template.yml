@@ -18,8 +18,8 @@ Globals:
       - !Ref RuntimeDependenciesLayer
     Environment:
       Variables:
-        SAMPLE_TABLE: !Ref SampleTable
-        ITEM_QUEUE: !Ref WriteQueue
+        CALCULATIONS_TABLE: !Ref CalculationsTable
+        CALCULATION_QUEUE: !Ref CalculationQueue
     Runtime: nodejs12.x
     MemorySize: 128
     Timeout: 100
@@ -39,14 +39,14 @@ Resources:
       Handler: dist/handlers/get-all-items.getAllItemsHandler
       Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        # Give Create/Read/Update/Delete Permissions to the CalculationsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+            TableName: !Ref CalculationsTable
       Events:
         Api:
           Type: Api
           Properties:
-            Path: /api/calculations
+            Path: /api/items
             Method: GET
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -60,14 +60,14 @@ Resources:
       Handler: dist/handlers/get-by-id.getByIdHandler
       Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        # Give Create/Read/Update/Delete Permissions to the CalculationsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+            TableName: !Ref CalculationsTable
       Events:
         Api:
           Type: Api
           Properties:
-            Path: /api/calculations/{id}
+            Path: /api/items/{id}
             Method: GET
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -83,12 +83,12 @@ Resources:
       Policies:
         # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
         - SQSSendMessagePolicy:
-            QueueName: !GetAtt WriteQueue.QueueName
+            QueueName: !GetAtt CalculationQueue.QueueName
       Events:
         Api:
           Type: Api
           Properties:
-            Path: /api/calculations
+            Path: /api/items
             Method: POST
 
   healthCheckFunction:
@@ -104,6 +104,19 @@ Resources:
           Properties:
             Path: /ping
             Method: GET
+  calculateSavingsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/handlers/calculate-savings.calculateSavingsHandler
+      Description: Calculate savings function
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /api/calculations
+            Method: POST
   # This is a Lambda function config associated with the source code: write-item.ts
   writeItemFunction:
     Type: AWS::Serverless::Function
@@ -114,22 +127,22 @@ Resources:
       Description: A simple example includes an SQS subscription to write queued object to DynamoDB
       Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
       Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
+        # Give Create/Read/Update/Delete Permissions to the CalculationsTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
         - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
+            TableName: !Ref CalculationsTable
       Events:
         # Subscription to primary SQS queue
         SQSQueueEvent:
           Type: SQS
           Properties:
-            Queue: !GetAtt WriteQueue.Arn
+            Queue: !GetAtt CalculationQueue.Arn
             BatchSize: 1
 
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
-  SampleTable:
+  CalculationsTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
@@ -139,7 +152,7 @@ Resources:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
 
-  WriteQueue:
+  CalculationQueue:
     Type: AWS::SQS::Queue
 
   RuntimeDependenciesLayer:
