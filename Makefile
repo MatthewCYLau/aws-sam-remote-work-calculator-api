@@ -1,18 +1,20 @@
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
-.PHONY: build-getAllItemsFunction build-getByIdFunction build-putItemFunction build-healthCheckFunction build-calculateSavingsFunction
+.PHONY: build-getAllCalculationsFunction build-getCalculationByIdFunction build-sendMessageToSqsFunction build-healthCheckFunction build-calculateSavingsFunction build-calculateSavingsAsyncFunction
 
-build-getAllItemsFunction:
-	$(MAKE) HANDLER=src/handlers/get-all-items.ts build-lambda-common
-build-getByIdFunction:
-	$(MAKE) HANDLER=src/handlers/get-by-id.ts build-lambda-common
-build-putItemFunction:
-	$(MAKE) HANDLER=src/handlers/put-item.ts build-lambda-common
+build-getAllCalculationsFunction:
+	$(MAKE) HANDLER=src/handlers/get-all-calculations.ts build-lambda-common
+build-getCalculationByIdFunction:
+	$(MAKE) HANDLER=src/handlers/get-calculation-by-id.ts build-lambda-common
+build-sendMessageToSqsFunction:
+	$(MAKE) HANDLER=src/handlers/send-message-sqs.ts build-lambda-common
 build-writeItemFunction:
 	$(MAKE) HANDLER=src/handlers/write-item.ts build-lambda-common
 build-healthCheckFunction:
 	$(MAKE) HANDLER=src/handlers/health-check.ts build-lambda-common
 build-calculateSavingsFunction:
 	$(MAKE) HANDLER=src/handlers/calculate-savings.ts build-lambda-common
+build-calculateSavingsAsyncFunction:
+	$(MAKE) HANDLER=src/handlers/calculate-savings-async.ts build-lambda-common
 
 build-lambda-common:
 	npm install

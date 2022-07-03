@@ -36,14 +36,13 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: get-all-items.js
-  getAllItemsFunction:
+  getAllCalculationsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: dist/handlers/get-all-items.getAllItemsHandler
-      Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
+      Handler: dist/handlers/get-all-calculations.getAllCalculationsHandler
+      Description: Get all calculations from a DynamoDB table
       Policies:
         # Give Create/Read/Update/Delete Permissions to the CalculationsTable
         - DynamoDBCrudPolicy:
@@ -52,19 +51,19 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /api/items
+            Path: /api/calculations
             Method: GET
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
   # This is a Lambda function config associated with the source code: get-by-id.js
-  getByIdFunction:
+  getCalculationByIdFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: dist/handlers/get-by-id.getByIdHandler
-      Description: A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
+      Handler: dist/handlers/get-calculation-by-id.getCalculationByIdHandler
+      Description: Get one calculation by id from a DynamoDB table.
       Policies:
         # Give Create/Read/Update/Delete Permissions to the CalculationsTable
         - DynamoDBCrudPolicy:
@@ -73,19 +72,19 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /api/items/{id}
+            Path: /api/calculations/{id}
             Method: GET
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
   # This is a Lambda function config associated with the source code: put-item.js
-  putItemFunction:
+  sendMessageToSqsFunction:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile
     Properties:
-      Handler: dist/handlers/put-item.putItemHandler
-      Description: A simple example includes a HTTP post method to add one item to an SQS queue (to be written to a DynamoDB table later).
+      Handler: dist/handlers/send-message-sqs.sendMessageToSqsHandler
+      Description: Send message to SQS queue
       Policies:
         # Give permission to send message to an Amazon SQS queue. See https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
         - SQSSendMessagePolicy:
@@ -94,7 +93,7 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /api/items
+            Path: /api/v2/calculations
             Method: POST
 
   healthCheckFunction:
@@ -116,12 +115,12 @@ Resources:
       BuildMethod: makefile
     Properties:
       Handler: dist/handlers/calculate-savings.calculateSavingsHandler
-      Description: Calculate savings function
+      Description: Calculate savings function synchronous
       Events:
         Api:
           Type: Api
           Properties:
-            Path: /api/calculations
+            Path: /api/v1/calculations
             Method: POST
   # This is a Lambda function config associated with the source code: write-item.ts
   writeItemFunction:
@@ -131,6 +130,25 @@ Resources:
     Properties:
       Handler: dist/handlers/write-item.writeItemHandler
       Description: A simple example includes an SQS subscription to write queued object to DynamoDB
+      Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the CalculationsTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CalculationsTable
+      Events:
+        # Subscription to primary SQS queue
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt CalculationQueue.Arn
+            BatchSize: 1
+  calculateSavingsAsyncFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/handlers/calculate-savings-async.calculateSavingsAsyncHandler
+      Description: Calculate savings function ; write results to DynamoDB
       Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
       Policies:
         # Give Create/Read/Update/Delete Permissions to the CalculationsTable, see https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#dynamo-db-crud-policy
