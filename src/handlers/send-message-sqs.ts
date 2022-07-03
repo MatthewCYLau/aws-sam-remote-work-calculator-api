@@ -28,7 +28,12 @@ export const sendMessageToSqsHandler = async (
 
   const response = {
     statusCode: 201,
-    body: JSON.stringify({ MessageId: result.MessageId }),
+    body: JSON.stringify({ id: result.MessageId }),
+    headers: {
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Origin": "*", // Allow from anywhere
+      "Access-Control-Allow-Methods": "POST", // Allow only POST request
+    },
   };
 
   // All log statements are written to CloudWatch
