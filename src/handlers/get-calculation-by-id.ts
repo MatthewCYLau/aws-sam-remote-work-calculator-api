@@ -26,6 +26,11 @@ export const getCalculationByIdHandler = async (
   const response = {
     statusCode: 200,
     body: JSON.stringify(item),
+    headers: {
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Origin": "*", // Allow from anywhere
+      "Access-Control-Allow-Methods": "GET", // Allow only POST request
+    },
   };
 
   // All log statements are written to CloudWatch
