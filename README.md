@@ -2,7 +2,7 @@
 
 An AWS Serverless application powered by [SAM](https://aws.amazon.com/serverless/sam/) which calculates work remote savings:moneybag:
 
-App URL [here](https://superb-salamander-c20e53.netlify.app/)
+API here: [`https://jyz1pun861.execute-api.us-east-1.amazonaws.com/Prod/ping`](https://jyz1pun861.execute-api.us-east-1.amazonaws.com/Prod/ping)
 
 Front-end project [here](https://github.com/MatthewCYLau/remote-work-calculator-client)
 
