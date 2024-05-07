@@ -1,6 +1,6 @@
 # AWS Serverless Remote Work Calculator
 
-An AWS Serverless application powered by [SAM](https://aws.amazon.com/serverless/sam/) which calculates work remote savings:moneybag:
+An AWS Serverless application powered by [SAM](https://aws.amazon.com/serverless/sam/) which calculates work remote savings :moneybag:
 
 API here: [`https://jyz1pun861.execute-api.us-east-1.amazonaws.com/Prod`](https://jyz1pun861.execute-api.us-east-1.amazonaws.com/Prod)
 
